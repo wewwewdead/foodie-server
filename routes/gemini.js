@@ -38,12 +38,12 @@ router.post("/analyze", upload, async (req, res) => {
             drawbacks: {
               type: 'array',
               items: { type: 'string' },
-              description: '2-3 Possible negative effects if over-consumed in one sentence'
+              description: '2-3 Possible negative effects if over-consumed in one sentence and suggest similar foods that are more healthier'
             },
             nutrients: {
               type: 'array',
               items: { type: 'string' },
-              description: '2-3 Key nutrients and their general benefits in one sentence'
+              description: '2-3 Key nutrients and their general benefits in one sentence and give a health score e.g., [1-100] based on nutrients'
             }
           },
           required: ['fallback', 'food', 'benefits', 'drawbacks', 'nutrients']

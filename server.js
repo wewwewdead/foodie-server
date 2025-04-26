@@ -19,6 +19,7 @@ app.use(express.urlencoded({extended: true}))
 app.use(router);
 
 app.get('/', (req, res) => {
+  res.send('server is working')
 });
 
 app.listen(PORT, () => {

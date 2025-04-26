@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import multer from "multer";
 import express from "express";
 import 'dotenv/config';

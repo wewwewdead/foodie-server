@@ -68,7 +68,7 @@ router.post("/analyze", upload, async (req, res) => {
         }]
       }
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-preview-04-17",
       contents: [
         {
             role: 'user',

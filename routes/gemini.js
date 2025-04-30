@@ -21,7 +21,7 @@ router.post("/analyze", upload, async (req, res) => {
 
     const foodAnalysisFunc = {
         name: 'analyze_food_image', //this is the function name
-        description: 'Analyzes food image and returns structured nutrition data. ',
+        description: 'Analyzes food image and returns structured nutrition data. And separate the calories, carbs, and sugar in their own args. ',
         parameters: {
           type: 'object',
           properties: {
@@ -33,7 +33,19 @@ router.post("/analyze", upload, async (req, res) => {
             benefits: {
               type: 'array',
               items: { type: 'string' },
-              description: '2-3 Health benefits of the food which body part will benefit e.g., [Make your skin glowing and can cure diseases if available] in one sentence and also add information about calories, carbs and sugar e.g .,[calories: 250, carbs: 30, sugar:10/100]'
+              description: '2-3 Health benefits of the food which body part will benefit e.g., [Make your skin glowing and can cure diseases if available] in one sentence. '
+            },
+            calories:{
+              type:'number',
+              description:'Estimated total calories of the food in grams. Return only the numerical value'
+            },
+            carbs: {
+              type:'number',
+              description:'Estimated total carbs of the food in grams. Return only the numerical value'
+            },
+            sugar: {
+              type:'number',
+              description:'Estimated total sugar of the food in grams. Return only the numerical value'
             },
             drawbacks: {
               type: 'array',
@@ -44,9 +56,9 @@ router.post("/analyze", upload, async (req, res) => {
               type: 'array',
               items: { type: 'string' },
               description: '2-3 Key nutrients and their general benefits in one sentence and give a health score e.g., [1-100] based on nutrients'
-            }
+            },
           },
-          required: ['fallback', 'food', 'benefits', 'drawbacks', 'nutrients']
+          required: ['fallback','sugar', 'calories', 'carbs', 'food', 'benefits', 'drawbacks', 'nutrients']
         }
       };
       
@@ -56,12 +68,13 @@ router.post("/analyze", upload, async (req, res) => {
         }]
       }
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: "gemini-2.0-flash",
       contents: [
         {
             role: 'user',
             parts:[
-                {text: 'Analyze the image. If any food is found — including fruits, vegetables, snacks, or raw ingredients — return structured nutritional information and call the function "analyze_food_image".'},
+              {text: `Analyze the image. If food is found — including fruits, vegetables, snacks, or raw ingredients — call the function "analyze_food_image".
+                Return the food name and also include health benefits, drawbacks, and nutrients and separate the calories, carbs, sugar. If no food is found, use fallback.`},
                 {
                     inlineData:{
                         mimeType: req.file.mimetype,
@@ -73,7 +86,7 @@ router.post("/analyze", upload, async (req, res) => {
       ],
       config: config
     });
-    // console.log(response.functionCalls[0].args)
+    console.log(response.functionCalls[0].args)
     if(response.functionCalls && response.functionCalls.length > 0) {
         const functionCall = response.functionCalls[0];
         const {fallback} = functionCall.args;

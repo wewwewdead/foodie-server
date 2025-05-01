@@ -113,7 +113,7 @@ router.post("/analyze", upload, async (req, res) => {
 router.post('/save', async(req, res) => {
   try {
     console.log(req.body);
-    const {cal, sugar, carbs, userId} = req.body;
+    const {cal, sugar, carbs, userId, foodName} = req.body;
     
     if(!cal || !sugar || !carbs){
       return res.status(400).json({error: 'sugar, carbs, cal is required'})
@@ -124,12 +124,14 @@ router.post('/save', async(req, res) => {
       calories: cal,
       carbs: carbs,
       sugar: sugar,
-      user_id: userId
+      user_id: userId,
+      food_name: foodName
     }])
 
     if (error) throw error;
-
-    return res.status(200).json({ message: 'saved successfully!', data });
+    
+    res.status(200).json({ message: 'saved successfully!', data });
+    return res.json({success: true})
   } catch (error) {
     console.error('Error uploading post:', error);
     if (error instanceof Error) {

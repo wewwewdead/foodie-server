@@ -37,7 +37,7 @@ router.post("/analyze", upload, async (req, res) => {
             },
             calories:{
               type:'number',
-              description:'Estimated total calories of the food in grams. Return only the numerical value'
+              description:'Estimated total calories of the food in kcal. Return only the numerical value'
             },
             carbs: {
               type:'number',
@@ -86,7 +86,7 @@ router.post("/analyze", upload, async (req, res) => {
       ],
       config: config
     });
-    console.log(response.functionCalls[0].args)
+    // console.log(response.functionCalls[0].args)
     if(response.functionCalls && response.functionCalls.length > 0) {
         const functionCall = response.functionCalls[0];
         const {fallback} = functionCall.args;

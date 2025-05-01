@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import multer from "multer";
 import express from "express";
 import 'dotenv/config';
+import supabase from "../../client/client/supabase";
 
 
 // initialize google ai with api Key
@@ -37,7 +38,7 @@ router.post("/analyze", upload, async (req, res) => {
             },
             calories:{
               type:'number',
-              description:'Estimated total calories of the food in kcal. Return only the numerical value'
+              description:'Estimated total calories of the food in grams. Return only the numerical value'
             },
             carbs: {
               type:'number',
@@ -108,4 +109,32 @@ router.post("/analyze", upload, async (req, res) => {
   }
 });
 
+//here's my router for sending datat to the backend
+router.post('/save', async(req, res) => {
+  try {
+    const {cal, sugar, carbs, userId} = req.body;
+    console.log(req.body);
+
+    if(!cal || !sugar || !carbs){
+      return res.status(400).json({error: 'sugar, carbs, cal is required'})
+    }
+    const {data, error} = await supabase
+    .from('food_logs')
+    .insert([{
+      calories: cal,
+      carbs: carbs,
+      sugar: sugar,
+      user_id: userId
+    }])
+  } catch (error) {
+    console.error('Error uploading post:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Stack:', error.stack);
+  }
+  res.status(500).json({ error: error.message ||  'Internal server error',
+      details: error,
+   });
+  } 
+})
 export default router;

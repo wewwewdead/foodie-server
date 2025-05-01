@@ -112,9 +112,9 @@ router.post("/analyze", upload, async (req, res) => {
 //here's my router for sending datat to the backend
 router.post('/save', async(req, res) => {
   try {
-    const {cal, sugar, carbs, userId} = req.body;
     console.log(req.body);
-
+    const {cal, sugar, carbs, userId} = req.body;
+    
     if(!cal || !sugar || !carbs){
       return res.status(400).json({error: 'sugar, carbs, cal is required'})
     }
@@ -126,6 +126,10 @@ router.post('/save', async(req, res) => {
       sugar: sugar,
       user_id: userId
     }])
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'saved successfully!', data });
   } catch (error) {
     console.error('Error uploading post:', error);
     if (error instanceof Error) {

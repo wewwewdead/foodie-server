@@ -162,6 +162,7 @@ router.get('/getFoodLogs', async(req, res) => {
   .eq('user_id', userId)
   .gte('created_at', start.toISOString())
   .lt('created_at', end.toISOString())
+  .order('created_at', {ascending: false})
 
   if(error){
     console.error('error fetchin data from foodlogs', error)

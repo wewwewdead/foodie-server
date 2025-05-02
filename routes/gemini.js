@@ -167,6 +167,16 @@ router.get('/getFoodLogs', async(req, res) => {
     console.error('error fetchin data from foodlogs', error)
     return;
   }
-  res.json({data});
+
+  const totals = data.reduce((acc, item) => {
+    acc.totalCalories += item.calories || 0;
+    acc.totalCarbs += item.carbs || 0;
+    acc.totalSugar += item.sugar || 0;
+
+    return acc;
+
+  }, {totalCalories: 0, totalCarbs: 0, totalSugar: 0})
+  
+  res.json({data, totals});
 })
 export default router;

@@ -167,5 +167,6 @@ router.get('/getFoodLogs', async(req, res) => {
     console.error('error fetchin data from foodlogs', error)
     return;
   }
+  res.json({data});
 })
 export default router;

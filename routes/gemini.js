@@ -160,8 +160,8 @@ router.get('/getFoodLogs', async(req, res) => {
   .from('food_logs')
   .select('*')
   .eq('user_id', userId)
-  .gte('created_at', start)
-  .lt('created_at', end)
+  .gte('created_at', start.toISOString())
+  .lt('created_at', end.toISOString())
 
   if(error){
     console.error('error fetchin data from foodlogs', error)

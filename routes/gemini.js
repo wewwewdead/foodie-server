@@ -3,6 +3,7 @@ import multer from "multer";
 import express from "express";
 import 'dotenv/config';
 import supabase from "../client/supabase.js"
+import e from "express";
 
 
 // initialize google ai with api Key
@@ -142,5 +143,29 @@ router.post('/save', async(req, res) => {
       details: error,
    });
   } 
+})
+
+//router to get the food data that is saved into the food logs
+router.get('/getFoodLogs', async(req, res) => {
+  const userId = req.query.userId;
+  if(!userId){
+    return res.status(400).json({error: 'no userId received!'})
+  }
+
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+  const {data, error} = await supabase
+  .from('food_logs')
+  .select('*')
+  .eq('user_id', userId)
+  .gte('created_at', start)
+  .lt('created_at', end)
+
+  if(error){
+    console.error('error fetchin data from foodlogs', error)
+    return;
+  }
 })
 export default router;

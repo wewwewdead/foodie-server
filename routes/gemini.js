@@ -49,7 +49,7 @@ router.post("/analyze", upload, async (req, res) => {
             },
             coachPrompt: {
               type: 'string',
-              description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food. Be creative and true to your personality, include historical or cultural references.`
+              description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food in under 30 words. `
             },
             food: { 
               type: 'string', 

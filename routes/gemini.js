@@ -122,7 +122,10 @@ router.post("/analyze", upload, async (req, res) => {
             })
         } 
 
-        return res.json({analysis: functionCall.args});
+        return res.json({
+          analysis: functionCall.args,
+          coach: celebName
+        });
     } else {
         res.status(400).json({error: "No structured response received." })
     }

@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import multer from "multer";
 import express from "express";
 import 'dotenv/config';
@@ -18,6 +18,22 @@ const upload = multer({
 
 
 router.post("/analyze", upload, async (req, res) => {
+  const deadCelebs = [
+    "Albert Einstein",
+    "Cleopatra",
+    "Julius Caesar",
+    "Shakespeare",
+    "Frida Kahlo",
+    "Bruce Lee",
+    "Leonardo da Vinci",
+    "Napoleon Bonaparte",
+    "Amelia Earhart",
+    "Marie Curie"
+  ]
+  const getRandomCelebs = () =>{
+    return deadCelebs[Math.floor(Math.random() * deadCelebs.length)]
+  }
+  const celebName = getRandomCelebs();
   try {
     const base64Image = req.file.buffer.toString("base64"); 
 
@@ -31,7 +47,14 @@ router.post("/analyze", upload, async (req, res) => {
                 type: 'string',
                 description: 'if food is detected then dont put anything here, else respond "No food detected'
             },
-            food: { type: 'string', description: 'Name of the food in the image and if multiple foods are detected then summarize briefly' },
+            coachPromp: {
+              type: 'string',
+              description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food. Be creative and true to your personality, include historical or cultural references.`
+            },
+            food: { 
+              type: 'string', 
+              description: 'Name of the food in the image and if multiple foods are detected then summarize briefly' 
+            },
             benefits: {
               type: 'array',
               items: { type: 'string' },

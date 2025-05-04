@@ -47,7 +47,7 @@ router.post("/analyze", upload, async (req, res) => {
                 type: 'string',
                 description: 'if food is detected then dont put anything here, else respond "No food detected'
             },
-            coachPromp: {
+            coachPrompt: {
               type: 'string',
               description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food. Be creative and true to your personality, include historical or cultural references.`
             },
@@ -83,7 +83,7 @@ router.post("/analyze", upload, async (req, res) => {
               description: '2-3 Key nutrients and their general benefits in one sentence and give a health score e.g., [1-100] based on nutrients'
             },
           },
-          required: ['fallback','sugar', 'calories', 'carbs', 'food', 'benefits', 'drawbacks', 'nutrients']
+          required: ['coachPrompt', 'fallback', 'sugar', 'calories', 'carbs', 'food', 'benefits', 'drawbacks', 'nutrients']
         }
       };
       

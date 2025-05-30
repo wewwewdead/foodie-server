@@ -1,9 +1,8 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import multer from "multer";
 import express from "express";
 import 'dotenv/config';
 import supabase from "../client/supabase.js"
-import e from "express";
 
 
 // initialize google ai with api Key

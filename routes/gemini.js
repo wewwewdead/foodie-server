@@ -92,7 +92,7 @@ router.post("/analyze", upload, async (req, res) => {
         }]
       }
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: "gemini-2.5-flash",
       contents: [
         {
             role: 'user',
@@ -156,15 +156,14 @@ router.post('/save', async(req, res) => {
 
     if (error) throw error;
     
-    res.status(200).json({ message: 'saved successfully!', data });
-    return res.json({success: true})
+    return res.status(200).json({success: true, message: 'saved successfully!', data });
   } catch (error) {
     console.error('Error uploading post:', error);
     if (error instanceof Error) {
       console.error('Error message:', error.message);
       console.error('Stack:', error.stack);
   }
-  res.status(500).json({ error: error.message ||  'Internal server error',
+  return res.status(500).json({ error: error.message ||  'Internal server error',
       details: error,
    });
   } 
@@ -203,6 +202,6 @@ router.get('/getFoodLogs', async(req, res) => {
 
   }, {totalCalories: 0, totalCarbs: 0, totalSugar: 0})
   
-  res.json({data, totals});
+  return res.json({data, totals});
 })
 export default router;

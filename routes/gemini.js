@@ -82,7 +82,7 @@ router.post("/analyze", upload, async (req, res) => {
               description: '2-3 Key nutrients and their general benefits in one sentence and give a health score e.g., [1-100] based on nutrients'
             },
           },
-          required: ['coachPrompt', 'fallback', 'sugar', 'calories', 'carbs', 'food', 'benefits', 'drawbacks', 'nutrients']
+          required: ['coachAdvice', 'fallback', 'sugar', 'calories', 'carbs', 'food', 'benefits', 'drawbacks', 'nutrients']
         }
       };
       

@@ -46,7 +46,7 @@ router.post("/analyze", upload, async (req, res) => {
                 type: 'string',
                 description: 'if food is detected then dont put anything here, else respond "No food detected'
             },
-            coachPrompt: {
+            coachAdvice: {
               type: 'string',
               description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food in under 30 words. `
             },

@@ -86,30 +86,37 @@ router.post("/analyze", upload, async (req, res) => {
         }
       };
       
-      const config = {
-        tools: [{
-            functionDeclarations: [foodAnalysisFunc]
-        }]
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    toolConfig: {
+      functionDeclarations: [foodAnalysisFunc]
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: `
+          Analyze the image. If food is found — including fruits, vegetables, snacks, or raw ingredients —
+          call the function "analyze_food_image".
+          Return the food name and also include health benefits, drawbacks, nutrients.
+          If no food is found, use fallback.
+        ` }
+        ]
+      },
+      {
+        role: "user",
+        parts: [
+          {
+            inlineData: {
+              mimeType: req.file.mimetype,
+              data: base64Image
+            }
+          }
+        ]
       }
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        {
-            role: 'user',
-            parts:[
-              {text: `Analyze the image. If food is found — including fruits, vegetables, snacks, or raw ingredients — call the function "analyze_food_image".
-                Return the food name and also include health benefits, drawbacks, and nutrients and separate the calories, carbs, sugar. If no food is found, use fallback.`},
-                {
-                    inlineData:{
-                        mimeType: req.file.mimetype,
-                        data: base64Image,
-                    }
-                }
-            ]
-        }
-      ],
-      tools: config.tools
-    });
+    ]
+});
+
     // console.log(response.functionCalls[0].args)
     if(response.functionCalls && response.functionCalls.length > 0) {
         const functionCall = response.functionCalls[0];

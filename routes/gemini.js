@@ -108,7 +108,7 @@ router.post("/analyze", upload, async (req, res) => {
             ]
         }
       ],
-      config: config
+      config: config.tools
     });
     // console.log(response.functionCalls[0].args)
     if(response.functionCalls && response.functionCalls.length > 0) {

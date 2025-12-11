@@ -82,6 +82,7 @@ router.post("/analyze", upload, async (req, res) => {
 
     const result = await ai.models.generateContent({
       model: "gemini-2.0-flash-exp",
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
         temperature: 0.7,

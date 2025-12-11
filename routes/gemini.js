@@ -16,125 +16,116 @@ const upload = multer({
 }).single("image");
 
 
-router.post("/analyze", upload, async (req, res) => {
+router.post("/analyze", upload.single('image'), async (req, res) => {
   const deadCelebs = [
-    "Albert Einstein",
-    "Cleopatra",
-    "Julius Caesar",
-    "Shakespeare",
-    "Frida Kahlo",
-    "Bruce Lee",
-    "Leonardo da Vinci",
-    "Napoleon Bonaparte",
-    "Amelia Earhart",
-    "Marie Curie"
-  ]
-  const getRandomCelebs = () =>{
-    return deadCelebs[Math.floor(Math.random() * deadCelebs.length)]
-  }
-  const celebName = getRandomCelebs();
-  try {
-    const base64Image = req.file.buffer.toString("base64"); 
+    "Albert Einstein", "Cleopatra", "Julius Caesar", "Shakespeare",
+    "Frida Kahlo", "Bruce Lee", "Leonardo da Vinci", "Napoleon Bonaparte",
+    "Amelia Earhart", "Marie Curie"
+  ];
 
-    const foodAnalysisFunc = {
-        name: 'analyze_food_image', //this is the function name
-        description: 'Analyzes food image and returns structured nutrition data. And separate the calories, carbs, and sugar in their own args. ',
-        parameters: {
-          type: 'object',
-          properties: {
-            fallback:{
-                type: 'string',
-                description: 'if food is detected then dont put anything here, else respond "No food detected'
-            },
-            coachAdvice: {
-              type: 'string',
-              description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food in under 30 words. `
-            },
-            food: { 
-              type: 'string', 
-              description: 'Name of the food in the image and if multiple foods are detected then summarize briefly' 
-            },
-            benefits: {
-              type: 'array',
-              items: { type: 'string' },
-              description: '2-3 Health benefits of the food which body part will benefit e.g., [Make your skin glowing and can cure diseases if available] in one sentence. '
-            },
-            calories:{
-              type:'number',
-              description:'Estimated total calories of the food in grams. Return only the numerical value'
-            },
-            carbs: {
-              type:'number',
-              description:'Estimated total carbs of the food in grams. Return only the numerical value'
-            },
-            sugar: {
-              type:'number',
-              description:'Estimated total sugar of the food in grams. Return only the numerical value'
-            },
-            drawbacks: {
-              type: 'array',
-              items: { type: 'string' },
-              description: '2-3 Possible negative effects if over-consumed in one sentence and suggest similar foods that are more healthier'
-            },
-            nutrients: {
-              type: 'array',
-              items: { type: 'string' },
-              description: '2-3 Key nutrients and their general benefits in one sentence and give a health score e.g., [1-100] based on nutrients'
-            },
-          },
-          required: ['coachAdvice', 'fallback', 'sugar', 'calories', 'carbs', 'food', 'benefits', 'drawbacks', 'nutrients']
+  const getRandomCeleb = () => deadCelebs[Math.floor(Math.random() * deadCelebs.length)];
+  const celebName = getRandomCeleb();
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image uploaded" });
+    }
+
+    const base64Image = req.file.buffer.toString("base64");
+
+    const responseSchema = {
+      type: "object",
+      properties: {
+        fallback: {
+          type: "string",
+          description: "If no food is detected, put 'No food detected'. Otherwise, leave empty or null."
+        },
+        coachAdvice: {
+          type: "string",
+          description: `${celebName}, you are a resurrected AI nutrition coach. Give humorous, witty, yet insightful advice about this food in under 30 words.`
+        },
+        food: {
+          type: "string",
+          description: "Name of the food in the image. If multiple foods, summarize briefly."
+        },
+        benefits: {
+          type: "array",
+          items: { type: "string" },
+          description: "2-3 health benefits (e.g., 'Improves skin glow', 'Boosts brain function')"
+        },
+        calories: {
+          type: "number",
+          description: "Estimated total calories (numerical value only)"
+        },
+        carbs: {
+          type: "number",
+          description: "Estimated total carbs in grams (numerical value only)"
+        },
+        sugar: {
+          type: "number",
+          description: "Estimated total sugar in grams (numerical value only)"
+        },
+        drawbacks: {
+          type: "array",
+          items: { type: "string" },
+          description: "2-3 possible negative effects if over-consumed + suggest healthier alternatives"
+        },
+        nutrients: {
+          type: "array",
+          items: { type: "string" },
+          description: "2-3 key nutrients with benefits + a health score 1-100 (e.g., 'Vitamin C: boosts immunity - Health score: 85')"
         }
-      };
-      
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    toolConfig: {
-      functionDeclarations: [foodAnalysisFunc]
-    },
-    contents: [
+      },
+      required: ["coachAdvice", "fallback", "food", "benefits", "calories", "carbs", "sugar", "drawbacks", "nutrients"]
+    };
+
+    const model = ai.getGenerativeModel({
+      model: "gemini-1.5-flash",  
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: responseSchema,
+        temperature: 0.7,
+        topP: 0.8,
+      }
+    });
+
+    const result = await model.generateContent([
       {
-        role: "user",
-        parts: [
-          { text: `
-          Analyze the image. If food is found — including fruits, vegetables, snacks, or raw ingredients —
-          call the function "analyze_food_image".
-          Return the food name and also include health benefits, drawbacks, nutrients.
-          If no food is found, use fallback.
-        ` }
-        ]
+        text: `You are an expert nutrition analyst. 
+        Carefully analyze the provided image.
+        - If it clearly contains food (fruits, vegetables, meals, snacks, ingredients), return structured nutrition data in JSON.
+        - If no food is detected (e, people, objects, landscapes), set "fallback" to "No food detected" and leave other fields minimal/empty.
+        
+        The resurrected celebrity coach is: ${celebName}`
       },
       {
-        role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType: req.file.mimetype,
-              data: base64Image
-            }
-          }
-        ]
+        inlineData: {
+          mimeType: req.file.mimetype,
+          data: base64Image
+        }
       }
-    ]
-});
+    ]);
 
-    // console.log(response.functionCalls[0].args)
-    if(response.functionCalls && response.functionCalls.length > 0) {
-        const functionCall = response.functionCalls[0];
-        const {fallback} = functionCall.args;
+    const responseText = result.response.text(); 
 
-        if(fallback && fallback.toLowerCase().includes('no food detected')){
-            return res.json({analysis: 
-                {fallback: fallback},
-            })
-        } 
-
-        return res.json({
-          analysis: functionCall.args,
-          coach: celebName
-        });
-    } else {
-        res.status(400).json({error: "No structured response received." })
+    let analysis;
+    try {
+      analysis = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", responseText);
+      return res.status(500).json({ error: "Invalid response format from AI" });
     }
+
+    if (analysis.fallback && analysis.fallback.toLowerCase().includes("no food detected")) {
+      return res.json({
+        analysis: { fallback: analysis.fallback }
+      });
+    }
+
+    return res.json({
+      analysis: analysis,
+      coach: celebName
+    });
 
   } catch (error) {
     console.error("Error analyzing image:", error);

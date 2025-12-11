@@ -16,7 +16,7 @@ const upload = multer({
 }).single("image");
 
 
-router.post("/analyze", upload.single('image'), async (req, res) => {
+router.post("/analyze", upload, async (req, res) => {
   const deadCelebs = [
     "Albert Einstein", "Cleopatra", "Julius Caesar", "Shakespeare",
     "Frida Kahlo", "Bruce Lee", "Leonardo da Vinci", "Napoleon Bonaparte",

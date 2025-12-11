@@ -79,34 +79,43 @@ router.post("/analyze", upload, async (req, res) => {
       required: ["coachAdvice", "fallback", "food", "benefits", "calories", "carbs", "sugar", "drawbacks", "nutrients"]
     };
 
-    const model = ai.getGenerativeModel({
-      model: "gemini-1.5-flash",  
-      generationConfig: {
+
+    const result = await ai.models.generateContent({
+      model: "gemini-2.0-flash-exp",
         responseMimeType: "application/json",
         responseSchema: responseSchema,
         temperature: 0.7,
         topP: 0.8,
-      }
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `You are an expert nutrition analyst. 
+              Carefully analyze the provided image.
+              - If it clearly contains food (fruits, vegetables, meals, snacks, ingredients), return structured nutrition data in JSON.
+              - If no food is detected (e.g., people, objects, landscapes), set "fallback" to "No food detected" and leave other fields minimal/empty.
+              
+              The resurrected celebrity coach is: ${celebName}`
+            }
+          ]
+        },
+        {
+          role: "user",
+          parts: [
+            {
+              inlineData: {
+                mimeType: req.file.mimetype,
+                data: base64Image
+              }
+            }
+          ]
+        }
+      ]
     });
 
-    const result = await model.generateContent([
-      {
-        text: `You are an expert nutrition analyst. 
-        Carefully analyze the provided image.
-        - If it clearly contains food (fruits, vegetables, meals, snacks, ingredients), return structured nutrition data in JSON.
-        - If no food is detected (e, people, objects, landscapes), set "fallback" to "No food detected" and leave other fields minimal/empty.
-        
-        The resurrected celebrity coach is: ${celebName}`
-      },
-      {
-        inlineData: {
-          mimeType: req.file.mimetype,
-          data: base64Image
-        }
-      }
-    ]);
-
-    const responseText = result.response.text(); 
+    const responseText = result.text;
 
     let analysis;
     try {
